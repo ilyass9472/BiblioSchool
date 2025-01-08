@@ -1,17 +1,28 @@
 <?php
-// Inclusion des fichiers
-require_once 'connexion/Database.php';
-require_once 'models/Livre.php';
+require 'connexion/Database.php';
+require 'models/Livre.php';
 
-// Création d'une instance de la classe Database
 $database = new Database();
 $pdo = $database->getConnection();
 
-// Création d'une instance de la classe Livre
 $livre = new Livre($pdo);
 
-// Récupérer tous les livres
-$livres = $livre->getAllLivres();
+$categorie = isset($_GET['categorie']) ? $_GET['categorie'] : null;
+$tag = isset($_GET['tag']) ? $_GET['tag'] : null;
+
+if ($categorie && $tag) {
+    
+    $livres = $livre->getLivresByCategorieAndTag($categorie, $tag);
+} elseif ($categorie) {
+    
+    $livres = $livre->getLivresByCategorie($categorie);
+} elseif ($tag) {
+    
+    $livres = $livre->getLivresByTag($tag);
+} else {
+    
+    $livres = $livre->getAllLivres();
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,18 +52,35 @@ $livres = $livre->getAllLivres();
 </head>
 <body>
     <h1 style="text-align: center;">Liste des Livres</h1>
+    
+    <form method="get" action="">
+        <label for="categorie">Catégorie:</label>
+        <input type="text" id="categorie" name="categorie" value="<?= htmlspecialchars($categorie) ?>">
+        
+        <label for="tag">Tag:</label>
+        <input type="text" id="tag" name="tag" value="<?= htmlspecialchars($tag) ?>">
+        
+        <button type="submit">Filtrer</button>
+    </form>
+    
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Nom</th>
+                <th>Titre</th>
+                <th>Auteur</th>
+                <th>Catégorie</th>
+                <th>Tag</th>
             </tr>
         </thead>
         <tbody>
             <?php foreach ($livres as $book): ?>
                 <tr>
                     <td><?= htmlspecialchars($book['id']); ?></td>
-                    <td><?= htmlspecialchars($book['nom']); ?></td>
+                    <td><?= htmlspecialchars($book['titre']); ?></td>
+                    <td><?= htmlspecialchars($book['auteur']); ?></td>
+                    <td><?= htmlspecialchars($book['categorie']); ?></td>
+                    <td><?= isset($book['tag']) ? htmlspecialchars($book['tag']) : 'N/A'; ?></td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
