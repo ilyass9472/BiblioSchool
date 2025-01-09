@@ -5,6 +5,7 @@ class Database {
     private $user = 'root';
     private $password = '';
     private $pdo;
+    private static $instance = null;
 
     public function getConnection() {
         try {
@@ -18,5 +19,17 @@ class Database {
             die("Erreur de connexion à la base de données : " . $e->getMessage());
         }
     }
+    public static function getInstance()
+  {
+    if (self::$instance == null)
+    {
+      self::$instance = new Database();
+    }
+ 
+    return self::$instance;
+  }
 }
+
+$db = Database::getInstance();
+$connection = $db->getConnection();
 ?>
